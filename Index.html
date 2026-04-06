@@ -1,0 +1,1766 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BookShelf ✦ Mon Journal de Lecture</title>
+
+<!-- Google Fonts - Sélection de polices belles et variées -->
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300&family=IM+Fell+English:ital@0;1&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Josefin+Sans:wght@200;400;600&family=Raleway:wght@200;400;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Dancing+Script:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   VARIABLES GLOBALES & RESET
+   ============================================================ */
+:root {
+  --bg-home: #1a0f2e;
+  --bg-home-2: #2d1b4e;
+  --accent-home: #c9a96e;
+  --text-home: #f0e6d3;
+  --card-bg: rgba(255,255,255,0.06);
+  --font-main: 'Cormorant Garamond', serif;
+  --font-display: 'Playfair Display', serif;
+  --font-ui: 'Josefin Sans', sans-serif;
+  --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --shadow: 0 8px 32px rgba(0,0,0,0.4);
+  --radius: 12px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-main);
+  background: var(--bg-home);
+  color: var(--text-home);
+  min-height: 100vh;
+  overflow-x: hidden;
+  transition: background 0.5s, color 0.5s;
+}
+
+/* ============================================================
+   NAVIGATION GLOBALE
+   ============================================================ */
+#nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 32px;
+  background: rgba(0,0,0,0.3);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+#nav .logo {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  color: var(--accent-home);
+  letter-spacing: 2px;
+  cursor: pointer;
+}
+#nav .nav-actions { display: flex; gap: 10px; align-items: center; }
+.btn {
+  font-family: var(--font-ui);
+  font-size: 0.75rem;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 8px 16px;
+  border: 1px solid rgba(255,255,255,0.2);
+  background: transparent;
+  color: var(--text-home);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.btn:hover { background: rgba(255,255,255,0.1); border-color: var(--accent-home); }
+.btn.primary { background: var(--accent-home); border-color: var(--accent-home); color: #1a0f2e; font-weight: 600; }
+.btn.primary:hover { filter: brightness(1.1); }
+
+/* ============================================================
+   PAGE D'ACCUEIL
+   ============================================================ */
+#page-home {
+  min-height: 100vh;
+  padding: 100px 40px 40px;
+  transition: background 0.5s;
+}
+
+.home-header {
+  text-align: center;
+  margin-bottom: 50px;
+}
+.home-header h1 {
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  color: var(--accent-home);
+  font-style: italic;
+  letter-spacing: 3px;
+  margin-bottom: 8px;
+}
+.home-header p {
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  opacity: 0.5;
+}
+
+/* Grille de livres */
+#books-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 28px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.book-card {
+  cursor: pointer;
+  transition: var(--transition);
+  position: relative;
+}
+.book-card:hover { transform: translateY(-8px) scale(1.02); }
+.book-cover-wrap {
+  width: 100%;
+  aspect-ratio: 2/3;
+  border-radius: 8px;
+  overflow: hidden;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  box-shadow: var(--shadow), -4px 4px 0 rgba(0,0,0,0.3);
+  position: relative;
+}
+.book-cover-wrap img {
+  width: 100%; height: 100%; object-fit: cover;
+}
+.book-cover-placeholder {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 3rem; opacity: 0.3;
+  background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+}
+.book-title-label {
+  margin-top: 10px;
+  font-family: var(--font-ui);
+  font-size: 0.75rem;
+  letter-spacing: 1px;
+  text-align: center;
+  opacity: 0.7;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.book-stars-preview {
+  text-align: center;
+  font-size: 0.7rem;
+  color: var(--accent-home);
+  margin-top: 3px;
+}
+
+/* Bouton ajouter livre */
+#add-book-card {
+  cursor: pointer;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  aspect-ratio: 2/3;
+  border: 2px dashed rgba(255,255,255,0.15);
+  border-radius: 8px;
+  transition: var(--transition);
+  opacity: 0.5;
+}
+#add-book-card:hover { opacity: 1; border-color: var(--accent-home); }
+#add-book-card span { font-size: 2rem; margin-bottom: 8px; }
+#add-book-card p { font-family: var(--font-ui); font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase; }
+
+/* ============================================================
+   PAGE LIVRE (détail)
+   ============================================================ */
+#page-book {
+  display: none;
+  min-height: 100vh;
+  padding: 80px 0 60px;
+  transition: background 0.5s;
+}
+
+.book-page-inner {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* Layout principal */
+.book-layout {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 32px;
+  margin-bottom: 32px;
+}
+
+/* Colonne gauche : couverture + note */
+.book-left { display: flex; flex-direction: column; gap: 20px; }
+
+.book-cover-large {
+  width: 100%;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: -6px 6px 0 rgba(0,0,0,0.4), var(--shadow);
+  position: relative;
+  aspect-ratio: 2/3;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  cursor: pointer;
+}
+.book-cover-large img { width: 100%; height: 100%; object-fit: cover; }
+.cover-upload-overlay {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: var(--transition);
+  flex-direction: column; gap: 8px;
+  font-family: var(--font-ui); font-size: 0.7rem;
+  letter-spacing: 2px; text-transform: uppercase;
+}
+.book-cover-large:hover .cover-upload-overlay { opacity: 1; }
+
+/* Post-it note */
+.postit {
+  border-radius: var(--radius);
+  padding: 16px;
+  position: relative;
+  box-shadow: 3px 3px 10px rgba(0,0,0,0.3);
+  transition: background 0.3s;
+}
+.postit::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: rgba(0,0,0,0.15);
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+.postit label {
+  font-family: var(--font-ui);
+  font-size: 0.65rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  opacity: 0.6;
+  display: block; margin-bottom: 8px;
+}
+.postit textarea, .postit input {
+  background: transparent;
+  border: none; outline: none;
+  width: 100%; resize: none;
+  font-family: inherit;
+  font-size: 0.9rem;
+  color: inherit;
+  line-height: 1.6;
+}
+
+/* Étoiles */
+.stars-widget { display: flex; gap: 4px; flex-wrap: wrap; }
+.star {
+  font-size: 1.4rem; cursor: pointer;
+  transition: transform 0.15s;
+  color: rgba(255,255,255,0.2);
+  user-select: none;
+}
+.star.active { color: #f4c430; }
+.star:hover { transform: scale(1.3); }
+
+/* Colonne droite : tout le contenu */
+.book-right { display: flex; flex-direction: column; gap: 20px; }
+
+.book-title-area { margin-bottom: 4px; }
+.book-title-input {
+  background: transparent; border: none; outline: none;
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 3vw, 2.6rem);
+  font-style: italic;
+  color: inherit; width: 100%;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  padding-bottom: 8px; margin-bottom: 6px;
+}
+.book-author-input {
+  background: transparent; border: none; outline: none;
+  font-family: var(--font-ui);
+  font-size: 0.85rem; letter-spacing: 2px;
+  text-transform: uppercase; opacity: 0.5;
+  color: inherit; width: 100%;
+}
+
+/* Palette de couleurs extraites */
+.color-palette-section {
+  display: flex; flex-direction: column; gap: 8px;
+}
+.color-palette-section label {
+  font-family: var(--font-ui); font-size: 0.65rem;
+  letter-spacing: 2px; text-transform: uppercase; opacity: 0.5;
+}
+.palette-swatches { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.swatch {
+  width: 28px; height: 28px; border-radius: 50%;
+  cursor: pointer; transition: transform 0.2s;
+  border: 2px solid transparent;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+.swatch:hover, .swatch.selected { transform: scale(1.3); border-color: white; }
+.extract-btn {
+  font-family: var(--font-ui); font-size: 0.65rem;
+  letter-spacing: 1.5px; text-transform: uppercase;
+  padding: 5px 10px; border: 1px solid rgba(255,255,255,0.2);
+  background: transparent; color: inherit; border-radius: 4px;
+  cursor: pointer; transition: var(--transition);
+}
+.extract-btn:hover { background: rgba(255,255,255,0.1); }
+
+/* Sections post-its en grille */
+.postits-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+/* Citations avec fluo */
+.citations-section { display: flex; flex-direction: column; gap: 12px; }
+.citation-item {
+  position: relative;
+  padding: 12px 16px;
+  border-left: 3px solid rgba(255,255,255,0.2);
+  transition: var(--transition);
+}
+.citation-text {
+  background: transparent; border: none; outline: none;
+  width: 100%; font-family: var(--font-main);
+  font-style: italic; font-size: 1rem;
+  line-height: 1.7; color: inherit; resize: none;
+}
+.citation-highlight {
+  position: absolute; inset: 0; z-index: -1;
+  border-radius: 4px; opacity: 0.25;
+  transition: background 0.3s;
+}
+.citation-controls {
+  display: flex; gap: 6px; margin-top: 6px; align-items: center;
+}
+.fluo-btn {
+  width: 20px; height: 20px; border-radius: 3px;
+  cursor: pointer; border: 2px solid transparent;
+  transition: transform 0.15s;
+}
+.fluo-btn:hover { transform: scale(1.2); }
+.add-citation-btn {
+  display: flex; align-items: center; gap: 8px;
+  font-family: var(--font-ui); font-size: 0.7rem;
+  letter-spacing: 2px; text-transform: uppercase;
+  opacity: 0.4; cursor: pointer; padding: 8px 0;
+  background: none; border: none; color: inherit;
+  transition: opacity 0.2s;
+}
+.add-citation-btn:hover { opacity: 1; }
+
+/* Protagonistes */
+.protagonists-section { display: flex; flex-direction: column; gap: 12px; }
+.protagonists-grid { display: flex; gap: 12px; flex-wrap: wrap; }
+.protagonist-card {
+  width: 80px; text-align: center;
+  cursor: pointer; transition: var(--transition);
+  position: relative;
+}
+.protagonist-card:hover { transform: translateY(-4px); }
+.protagonist-photo {
+  width: 80px; height: 80px; border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255,255,255,0.2);
+  display: block;
+  background: rgba(255,255,255,0.05);
+}
+.protagonist-photo-placeholder {
+  width: 80px; height: 80px; border-radius: 50%;
+  background: rgba(255,255,255,0.05);
+  border: 2px dashed rgba(255,255,255,0.2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.5rem; cursor: pointer;
+}
+.protagonist-name {
+  font-family: var(--font-ui); font-size: 0.65rem;
+  letter-spacing: 1px; margin-top: 5px;
+  background: transparent; border: none; outline: none;
+  width: 100%; text-align: center; color: inherit;
+}
+.add-protagonist {
+  width: 80px; height: 80px; border-radius: 50%;
+  border: 2px dashed rgba(255,255,255,0.15);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.5rem; cursor: pointer;
+  transition: var(--transition); opacity: 0.4;
+  background: none;
+  color: inherit;
+}
+.add-protagonist:hover { opacity: 1; border-color: var(--accent-home); }
+
+/* Stickers / doodles */
+#stickers-layer {
+  position: fixed; inset: 0; pointer-events: none; z-index: 50;
+}
+.sticker {
+  position: absolute;
+  pointer-events: all;
+  cursor: grab;
+  user-select: none;
+  width: 80px; height: 80px;
+  display: flex; align-items: center; justify-content: center;
+}
+.sticker img { width: 100%; height: 100%; object-fit: contain; }
+.sticker:active { cursor: grabbing; }
+.sticker .sticker-delete {
+  position: absolute; top: -8px; right: -8px;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: #e74c3c; color: white; font-size: 10px;
+  display: none; align-items: center; justify-content: center;
+  cursor: pointer; z-index: 1;
+}
+.sticker:hover .sticker-delete { display: flex; }
+
+/* Section tropes */
+.tropes-section textarea {
+  background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px; padding: 12px; color: inherit;
+  font-family: var(--font-main); font-size: 0.9rem;
+  line-height: 1.7; width: 100%; resize: vertical;
+  min-height: 100px; outline: none; transition: border-color 0.2s;
+}
+.tropes-section textarea:focus { border-color: rgba(255,255,255,0.3); }
+
+/* ============================================================
+   WIDGET MUSIQUE
+   ============================================================ */
+#music-widget {
+  position: fixed; bottom: 24px; right: 24px; z-index: 200;
+  width: 280px;
+  background: rgba(15, 10, 30, 0.92);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  overflow: hidden;
+  transition: var(--transition);
+}
+#music-widget.collapsed { width: 56px; height: 56px; border-radius: 50%; overflow: hidden; }
+.music-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  cursor: pointer;
+}
+.music-header .music-icon { font-size: 1.1rem; }
+.music-header span {
+  font-family: var(--font-ui); font-size: 0.7rem;
+  letter-spacing: 2px; text-transform: uppercase; opacity: 0.6;
+  flex: 1; margin-left: 10px;
+}
+.music-body { padding: 14px; }
+.music-url-input {
+  width: 100%; padding: 8px 10px;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 6px; color: var(--text-home);
+  font-family: var(--font-ui); font-size: 0.75rem;
+  outline: none; margin-bottom: 10px;
+}
+.music-url-input::placeholder { opacity: 0.4; }
+#music-iframe-wrap { border-radius: 8px; overflow: hidden; }
+#music-iframe-wrap iframe { display: block; border: none; }
+.music-controls { display: flex; gap: 8px; margin-top: 10px; }
+#music-widget.collapsed .music-header { border-bottom: none; padding: 0; width: 56px; height: 56px; justify-content: center; }
+#music-widget.collapsed .music-body,
+#music-widget.collapsed .music-header span,
+#music-widget.collapsed .music-header .toggle-music { display: none; }
+
+/* ============================================================
+   PANNEAU PARAMÈTRES
+   ============================================================ */
+#settings-panel {
+  position: fixed; top: 0; right: -380px; bottom: 0; width: 360px;
+  background: rgba(10, 5, 20, 0.97);
+  backdrop-filter: blur(20px);
+  border-left: 1px solid rgba(255,255,255,0.08);
+  z-index: 300; transition: right 0.4s cubic-bezier(0.4,0,0.2,1);
+  padding: 80px 24px 24px;
+  overflow-y: auto;
+}
+#settings-panel.open { right: 0; }
+.settings-section { margin-bottom: 28px; }
+.settings-section h3 {
+  font-family: var(--font-ui); font-size: 0.7rem;
+  letter-spacing: 3px; text-transform: uppercase;
+  opacity: 0.5; margin-bottom: 14px;
+  padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.color-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.color-row label { font-family: var(--font-ui); font-size: 0.75rem; flex: 1; opacity: 0.7; }
+.color-row input[type="color"] {
+  width: 36px; height: 36px; border: none; border-radius: 50%;
+  cursor: pointer; padding: 2px; background: none;
+}
+.font-options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.font-option {
+  padding: 8px 10px; border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 6px; cursor: pointer; text-align: center;
+  font-size: 0.85rem; transition: var(--transition);
+  background: transparent; color: inherit;
+}
+.font-option.active { border-color: var(--accent-home); background: rgba(201,169,110,0.1); }
+
+/* ============================================================
+   MODAL AJOUT LIVRE
+   ============================================================ */
+.modal-overlay {
+  display: none; position: fixed; inset: 0; z-index: 400;
+  background: rgba(0,0,0,0.7); backdrop-filter: blur(6px);
+  align-items: center; justify-content: center;
+}
+.modal-overlay.active { display: flex; }
+.modal {
+  background: rgba(20, 12, 40, 0.98);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px; padding: 32px;
+  width: min(480px, 95vw);
+  box-shadow: 0 40px 80px rgba(0,0,0,0.6);
+}
+.modal h2 {
+  font-family: var(--font-display); font-size: 1.5rem;
+  font-style: italic; margin-bottom: 24px;
+  color: var(--accent-home);
+}
+.field { margin-bottom: 16px; }
+.field label {
+  display: block; font-family: var(--font-ui); font-size: 0.65rem;
+  letter-spacing: 2px; text-transform: uppercase;
+  opacity: 0.5; margin-bottom: 6px;
+}
+.field input, .field textarea {
+  width: 100%; padding: 10px 12px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px; color: var(--text-home);
+  font-family: var(--font-main); font-size: 0.9rem;
+  outline: none; transition: border-color 0.2s;
+}
+.field input:focus, .field textarea:focus { border-color: rgba(255,255,255,0.3); }
+.upload-zone {
+  border: 2px dashed rgba(255,255,255,0.15);
+  border-radius: 8px; padding: 24px;
+  text-align: center; cursor: pointer;
+  transition: var(--transition);
+  position: relative;
+}
+.upload-zone:hover { border-color: var(--accent-home); }
+.upload-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.upload-zone .upload-icon { font-size: 2rem; margin-bottom: 8px; }
+.upload-zone p { font-family: var(--font-ui); font-size: 0.7rem; letter-spacing: 1px; opacity: 0.5; }
+#modal-preview {
+  width: 100px; height: 150px; object-fit: cover;
+  border-radius: 6px; display: none; margin: 8px auto 0;
+}
+.modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; }
+
+/* ============================================================
+   SECTION HEADERS
+   ============================================================ */
+.section-header {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 12px;
+}
+.section-header h3 {
+  font-family: var(--font-ui); font-size: 0.7rem;
+  letter-spacing: 3px; text-transform: uppercase; opacity: 0.5;
+}
+.section-header hr { flex: 1; border: none; border-top: 1px solid rgba(255,255,255,0.06); }
+
+/* ============================================================
+   CANVAS CACHÉ (extraction couleurs)
+   ============================================================ */
+#color-extractor-canvas { display: none; }
+
+/* ============================================================
+   ANIMATIONS
+   ============================================================ */
+@keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.book-card { animation: fadeIn 0.4s ease both; }
+.book-card:nth-child(1) { animation-delay: 0.05s; }
+.book-card:nth-child(2) { animation-delay: 0.1s; }
+.book-card:nth-child(3) { animation-delay: 0.15s; }
+.book-card:nth-child(4) { animation-delay: 0.2s; }
+.book-card:nth-child(5) { animation-delay: 0.25s; }
+.book-card:nth-child(6) { animation-delay: 0.3s; }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 768px) {
+  #nav { padding: 12px 16px; }
+  #page-home { padding: 80px 16px 40px; }
+  #books-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 16px; }
+  .book-layout { grid-template-columns: 1fr; }
+  .book-cover-large { max-width: 200px; margin: 0 auto; }
+  #music-widget { bottom: 12px; right: 12px; width: 260px; }
+  #settings-panel { width: 100%; }
+}
+
+/* ============================================================
+   SCROLLBAR CUSTOM
+   ============================================================ */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
+
+/* ============================================================
+   TOAST NOTIFICATIONS
+   ============================================================ */
+#toast {
+  position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%);
+  background: rgba(20,12,40,0.95); border: 1px solid rgba(255,255,255,0.15);
+  color: var(--text-home); padding: 10px 20px; border-radius: 8px;
+  font-family: var(--font-ui); font-size: 0.75rem; letter-spacing: 1px;
+  z-index: 500; opacity: 0; transition: opacity 0.3s;
+  pointer-events: none;
+}
+#toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<!-- ======================================================
+     NAVIGATION
+     ====================================================== -->
+<nav id="nav">
+  <div class="logo" onclick="goHome()">✦ BookShelf</div>
+  <div class="nav-actions">
+    <button class="btn" onclick="openAddBook()">+ Ajouter un livre</button>
+    <button class="btn" id="sticker-btn" onclick="triggerStickerUpload()">🎨 Sticker</button>
+    <button class="btn" onclick="toggleSettings()">⚙ Thème</button>
+  </div>
+</nav>
+
+<!-- ======================================================
+     PAGE ACCUEIL
+     ====================================================== -->
+<div id="page-home">
+  <div class="home-header">
+    <h1>Ma Bibliothèque</h1>
+    <p>Journal de lecture personnel</p>
+  </div>
+  <div id="books-grid">
+    <!-- livres générés dynamiquement -->
+    <div id="add-book-card" onclick="openAddBook()">
+      <span>📚</span>
+      <p>Ajouter un livre</p>
+    </div>
+  </div>
+</div>
+
+<!-- ======================================================
+     PAGE LIVRE (détail)
+     ====================================================== -->
+<div id="page-book">
+  <div class="book-page-inner">
+
+    <!-- Layout principal : couverture + contenu -->
+    <div class="book-layout">
+
+      <!-- Colonne gauche -->
+      <div class="book-left">
+
+        <!-- Couverture cliquable pour modifier -->
+        <div class="book-cover-large" id="detail-cover-wrap" onclick="triggerCoverUpload()">
+          <img id="detail-cover-img" src="" alt="Couverture" style="display:none">
+          <div class="book-cover-placeholder" id="detail-cover-placeholder">📖</div>
+          <div class="cover-upload-overlay">
+            <span>📷</span>
+            <span>Changer</span>
+          </div>
+        </div>
+        <input type="file" id="cover-upload-input" accept="image/*" style="display:none" onchange="onCoverUpload(event)">
+
+        <!-- Extraction couleurs -->
+        <div class="color-palette-section">
+          <label>Palette extraite</label>
+          <div class="palette-swatches" id="palette-swatches">
+            <button class="extract-btn" onclick="extractColors()">✦ Extraire les couleurs</button>
+          </div>
+        </div>
+
+        <!-- Note / Étoiles -->
+        <div class="postit" id="postit-rating" style="background: rgba(255,200,80,0.15);">
+          <label>Ma note</label>
+          <div class="stars-widget" id="stars-widget"></div>
+          <p id="rating-text" style="font-family: var(--font-ui); font-size: 0.7rem; opacity: 0.5; margin-top: 6px;">—/10</p>
+        </div>
+
+      </div>
+
+      <!-- Colonne droite -->
+      <div class="book-right">
+
+        <!-- Titre & Auteur -->
+        <div class="book-title-area">
+          <input class="book-title-input" id="detail-title" placeholder="Titre du livre..." oninput="saveCurrentBook()">
+          <input class="book-author-input" id="detail-author" placeholder="Auteur · Autrice..." oninput="saveCurrentBook()">
+        </div>
+
+        <!-- Post-its : appréciation + résumé -->
+        <div class="postits-grid">
+          <div class="postit" id="postit-appreciation">
+            <label>💬 Appréciation</label>
+            <textarea id="detail-appreciation" rows="5" placeholder="Ce que j'ai aimé, ressenti..." oninput="saveCurrentBook()"></textarea>
+          </div>
+          <div class="postit" id="postit-resume">
+            <label>📝 Résumé</label>
+            <textarea id="detail-resume" rows="5" placeholder="Le pitch en quelques mots..." oninput="saveCurrentBook()"></textarea>
+          </div>
+        </div>
+
+        <!-- Tropes -->
+        <div>
+          <div class="section-header">
+            <h3>📌 Tropes</h3><hr>
+          </div>
+          <div class="tropes-section">
+            <textarea id="detail-tropes" rows="4" placeholder="enemies to lovers, slow burn, chosen one, found family..." oninput="saveCurrentBook()"></textarea>
+          </div>
+        </div>
+
+        <!-- Citations -->
+        <div>
+          <div class="section-header">
+            <h3>✍ Citations</h3><hr>
+          </div>
+          <div class="citations-section" id="citations-list"></div>
+          <button class="add-citation-btn" onclick="addCitation()">
+            <span>+</span> Ajouter une citation
+          </button>
+        </div>
+
+        <!-- Protagonistes -->
+        <div>
+          <div class="section-header">
+            <h3>👤 Protagonistes</h3><hr>
+          </div>
+          <div class="protagonists-section">
+            <div class="protagonists-grid" id="protagonists-grid"></div>
+          </div>
+          <input type="file" id="protagonist-upload-input" accept="image/*" style="display:none" onchange="onProtagonistUpload(event)">
+        </div>
+
+      </div>
+    </div><!-- /book-layout -->
+
+    <!-- Import doodles -->
+    <div style="margin-top: 12px; display: flex; align-items: center; gap: 12px;">
+      <div class="section-header" style="margin-bottom:0; flex:1">
+        <h3>🎨 Stickers / Doodles</h3><hr>
+      </div>
+      <button class="btn" onclick="triggerStickerUpload()" style="font-size:0.65rem">+ Importer un doodle</button>
+    </div>
+    <p style="font-family: var(--font-ui); font-size: 0.65rem; opacity: 0.4; letter-spacing: 1px; margin-top: 8px;">Les stickers sont déplaçables librement sur toute la page</p>
+
+  </div><!-- /book-page-inner -->
+</div><!-- /page-book -->
+
+<!-- ======================================================
+     CANVAS CACHÉ pour extraction couleurs
+     ====================================================== -->
+<canvas id="color-extractor-canvas"></canvas>
+
+<!-- ======================================================
+     LAYER STICKERS (draggable)
+     ====================================================== -->
+<div id="stickers-layer"></div>
+<input type="file" id="sticker-upload-input" accept="image/*" style="display:none" onchange="onStickerUpload(event)">
+
+<!-- ======================================================
+     WIDGET MUSIQUE
+     ====================================================== -->
+<div id="music-widget">
+  <div class="music-header" onclick="toggleMusicWidget()">
+    <span class="music-icon">🎵</span>
+    <span>Musique</span>
+    <span class="toggle-music" style="font-size:0.8rem;opacity:0.4">▼</span>
+  </div>
+  <div class="music-body" id="music-body">
+    <input class="music-url-input" id="music-url" placeholder="URL YouTube, Spotify..." oninput="updateMusicWidget()">
+    <div id="music-iframe-wrap"></div>
+    <div style="font-family: var(--font-ui); font-size: 0.65rem; opacity: 0.4; letter-spacing: 1px; margin-top: 8px;">
+      ✦ Collez un lien YouTube pour écouter
+    </div>
+  </div>
+</div>
+
+<!-- ======================================================
+     PANNEAU PARAMÈTRES / THÈME
+     ====================================================== -->
+<div id="settings-panel">
+  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:24px;">
+    <h2 style="font-family: var(--font-display); font-style:italic; font-size:1.3rem; color: var(--accent-home);">Thème</h2>
+    <button class="btn" onclick="toggleSettings()">✕</button>
+  </div>
+
+  <div class="settings-section">
+    <h3>Page d'accueil</h3>
+    <div class="color-row">
+      <label>Fond principal</label>
+      <input type="color" id="c-bg-home" value="#1a0f2e" oninput="applyColor('--bg-home', this.value)">
+    </div>
+    <div class="color-row">
+      <label>Fond secondaire</label>
+      <input type="color" id="c-bg-home-2" value="#2d1b4e" oninput="applyColor('--bg-home-2', this.value)">
+    </div>
+    <div class="color-row">
+      <label>Couleur accent</label>
+      <input type="color" id="c-accent" value="#c9a96e" oninput="applyColor('--accent-home', this.value)">
+    </div>
+    <div class="color-row">
+      <label>Texte</label>
+      <input type="color" id="c-text" value="#f0e6d3" oninput="applyColor('--text-home', this.value)">
+    </div>
+  </div>
+
+  <div class="settings-section">
+    <h3>Page livre (post-its)</h3>
+    <div class="color-row">
+      <label>Post-it note</label>
+      <input type="color" id="c-postit-note" value="#ffd580" oninput="applyBookColor('postit-appreciation', this.value)">
+    </div>
+    <div class="color-row">
+      <label>Post-it résumé</label>
+      <input type="color" id="c-postit-resume" value="#b5ead7" oninput="applyBookColor('postit-resume', this.value)">
+    </div>
+    <div class="color-row">
+      <label>Post-it note/10</label>
+      <input type="color" id="c-postit-rating" value="#ffc8dd" oninput="applyBookColor('postit-rating', this.value)">
+    </div>
+  </div>
+
+  <div class="settings-section">
+    <h3>Police d'écriture</h3>
+    <div class="font-options" id="font-options">
+      <button class="font-option active" style="font-family:'Cormorant Garamond'" data-font="'Cormorant Garamond', serif" onclick="setFont(this)">Cormorant</button>
+      <button class="font-option" style="font-family:'Playfair Display'" data-font="'Playfair Display', serif" onclick="setFont(this)">Playfair</button>
+      <button class="font-option" style="font-family:'IM Fell English'" data-font="'IM Fell English', serif" onclick="setFont(this)">IM Fell</button>
+      <button class="font-option" style="font-family:'Libre Baskerville'" data-font="'Libre Baskerville', serif" onclick="setFont(this)">Baskerville</button>
+      <button class="font-option" style="font-family:'Josefin Sans'" data-font="'Josefin Sans', sans-serif" onclick="setFont(this)">Josefin</button>
+      <button class="font-option" style="font-family:'Raleway'" data-font="'Raleway', sans-serif" onclick="setFont(this)">Raleway</button>
+      <button class="font-option" style="font-family:'Crimson Text'" data-font="'Crimson Text', serif" onclick="setFont(this)">Crimson</button>
+      <button class="font-option" style="font-family:'Dancing Script'" data-font="'Dancing Script', cursive" onclick="setFont(this)">Dancing</button>
+    </div>
+  </div>
+
+  <div class="settings-section">
+    <h3>Actions</h3>
+    <button class="btn" onclick="exportData()" style="width:100%; margin-bottom:8px;">📥 Exporter mes données</button>
+    <button class="btn" onclick="document.getElementById('import-input').click()" style="width:100%; margin-bottom:8px;">📤 Importer des données</button>
+    <input type="file" id="import-input" accept=".json" style="display:none" onchange="importData(event)">
+    <button class="btn" onclick="resetConfirm()" style="width:100%; border-color:#e74c3c; color:#e74c3c;">🗑 Tout réinitialiser</button>
+  </div>
+</div>
+
+<!-- ======================================================
+     MODAL AJOUT LIVRE
+     ====================================================== -->
+<div class="modal-overlay" id="modal-add-book">
+  <div class="modal">
+    <h2>✦ Nouveau livre</h2>
+    <div class="field">
+      <label>Titre</label>
+      <input type="text" id="new-title" placeholder="Le nom du livre...">
+    </div>
+    <div class="field">
+      <label>Auteur · Autrice</label>
+      <input type="text" id="new-author" placeholder="Nom de l'auteur...">
+    </div>
+    <div class="field">
+      <label>Couverture</label>
+      <div class="upload-zone">
+        <input type="file" accept="image/*" onchange="previewNewBookCover(event)">
+        <div class="upload-icon">📷</div>
+        <p>Cliquer pour importer une image</p>
+      </div>
+      <img id="modal-preview" alt="Aperçu couverture">
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeAddBook()">Annuler</button>
+      <button class="btn primary" onclick="confirmAddBook()">Ajouter ✦</button>
+    </div>
+  </div>
+</div>
+
+<!-- ======================================================
+     TOAST
+     ====================================================== -->
+<div id="toast"></div>
+
+<!-- ======================================================
+     JAVASCRIPT PRINCIPAL
+     ====================================================== -->
+<script>
+// ============================================================
+// ÉTAT GLOBAL
+// ============================================================
+let books = [];           // Tableau de tous les livres
+let currentBookId = null; // ID du livre ouvert
+let newBookCoverData = ''; // Data URL de la couverture en cours d'ajout
+let stickers = [];        // Stickers actifs
+let musicCollapsed = false;
+
+// ============================================================
+// INITIALISATION
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+  loadAllData();
+  renderBooksGrid();
+  renderStickers();
+  initStarWidget();
+  loadTheme();
+  loadMusicWidget();
+  updatePageBackground();
+});
+
+// ============================================================
+// GESTION DES DONNÉES (LocalStorage)
+// ============================================================
+
+/** Sauvegarde tout */
+function saveAll() {
+  localStorage.setItem('bookshelf_books', JSON.stringify(books));
+  localStorage.setItem('bookshelf_stickers', JSON.stringify(stickers));
+  localStorage.setItem('bookshelf_theme', JSON.stringify(getThemeState()));
+}
+
+/** Charge tout depuis localStorage */
+function loadAllData() {
+  try {
+    const b = localStorage.getItem('bookshelf_books');
+    if (b) books = JSON.parse(b);
+    const s = localStorage.getItem('bookshelf_stickers');
+    if (s) stickers = JSON.parse(s);
+  } catch(e) { console.error('Erreur chargement données', e); }
+}
+
+/** Sauvegarde le livre courant */
+function saveCurrentBook() {
+  if (!currentBookId) return;
+  const book = getBook(currentBookId);
+  if (!book) return;
+  book.title    = document.getElementById('detail-title').value;
+  book.author   = document.getElementById('detail-author').value;
+  book.appreciation = document.getElementById('detail-appreciation').value;
+  book.resume   = document.getElementById('detail-resume').value;
+  book.tropes   = document.getElementById('detail-tropes').value;
+  saveAll();
+  renderBooksGrid();
+}
+
+function getBook(id) { return books.find(b => b.id === id); }
+
+// ============================================================
+// GRILLE DE LIVRES (accueil)
+// ============================================================
+
+function renderBooksGrid() {
+  const grid = document.getElementById('books-grid');
+  // Garde le bouton ajouter
+  grid.innerHTML = '';
+  
+  books.forEach(book => {
+    const card = document.createElement('div');
+    card.className = 'book-card';
+    card.onclick = () => openBook(book.id);
+    
+    const stars = book.rating ? '★'.repeat(Math.round(book.rating/2)) : '';
+    
+    card.innerHTML = `
+      <div class="book-cover-wrap">
+        ${book.cover
+          ? `<img src="${book.cover}" alt="${escHtml(book.title)}" loading="lazy">`
+          : `<div class="book-cover-placeholder">📖</div>`
+        }
+      </div>
+      <div class="book-title-label">${escHtml(book.title || 'Sans titre')}</div>
+      ${stars ? `<div class="book-stars-preview">${stars}</div>` : ''}
+    `;
+    grid.appendChild(card);
+  });
+
+  // Bouton ajouter à la fin
+  const addCard = document.createElement('div');
+  addCard.id = 'add-book-card';
+  addCard.onclick = openAddBook;
+  addCard.innerHTML = `<span>📚</span><p>Ajouter un livre</p>`;
+  grid.appendChild(addCard);
+}
+
+function escHtml(str) {
+  const d = document.createElement('div');
+  d.textContent = str || '';
+  return d.innerHTML;
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+
+function goHome() {
+  document.getElementById('page-book').style.display = 'none';
+  document.getElementById('page-home').style.display = 'block';
+  currentBookId = null;
+  updatePageBackground();
+}
+
+function openBook(id) {
+  currentBookId = id;
+  const book = getBook(id);
+  if (!book) return;
+
+  document.getElementById('page-home').style.display = 'none';
+  document.getElementById('page-book').style.display = 'block';
+
+  // Remplir les champs
+  document.getElementById('detail-title').value = book.title || '';
+  document.getElementById('detail-author').value = book.author || '';
+  document.getElementById('detail-appreciation').value = book.appreciation || '';
+  document.getElementById('detail-resume').value = book.resume || '';
+  document.getElementById('detail-tropes').value = book.tropes || '';
+
+  // Couverture
+  const img = document.getElementById('detail-cover-img');
+  const placeholder = document.getElementById('detail-cover-placeholder');
+  if (book.cover) {
+    img.src = book.cover;
+    img.style.display = 'block';
+    placeholder.style.display = 'none';
+  } else {
+    img.style.display = 'none';
+    placeholder.style.display = 'flex';
+  }
+
+  // Étoiles
+  setStars(book.rating || 0);
+
+  // Citations
+  renderCitations();
+
+  // Protagonistes
+  renderProtagonists();
+
+  // Palette
+  renderPalette(book.palette || []);
+
+  // Appliquer les couleurs du livre à la page
+  applyBookPageColors(book);
+
+  updatePageBackground();
+}
+
+// ============================================================
+// MODAL AJOUT LIVRE
+// ============================================================
+
+function openAddBook() {
+  document.getElementById('modal-add-book').classList.add('active');
+  document.getElementById('new-title').value = '';
+  document.getElementById('new-author').value = '';
+  document.getElementById('modal-preview').style.display = 'none';
+  newBookCoverData = '';
+  document.getElementById('new-title').focus();
+}
+
+function closeAddBook() {
+  document.getElementById('modal-add-book').classList.remove('active');
+}
+
+function previewNewBookCover(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    newBookCoverData = e.target.result;
+    const prev = document.getElementById('modal-preview');
+    prev.src = newBookCoverData;
+    prev.style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+
+function confirmAddBook() {
+  const title = document.getElementById('new-title').value.trim();
+  if (!title) {
+    showToast('✦ Entre au moins un titre !');
+    return;
+  }
+  const book = {
+    id: 'book_' + Date.now(),
+    title,
+    author: document.getElementById('new-author').value.trim(),
+    cover: newBookCoverData,
+    rating: 0,
+    appreciation: '',
+    resume: '',
+    tropes: '',
+    citations: [],
+    protagonists: [],
+    palette: [],
+    colors: {}
+  };
+  books.unshift(book);
+  saveAll();
+  renderBooksGrid();
+  closeAddBook();
+  showToast('📚 Livre ajouté !');
+  openBook(book.id);
+}
+
+// ============================================================
+// COUVERTURE (page détail)
+// ============================================================
+
+function triggerCoverUpload() {
+  document.getElementById('cover-upload-input').click();
+}
+
+function onCoverUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const book = getBook(currentBookId);
+    if (!book) return;
+    book.cover = e.target.result;
+    saveAll();
+    const img = document.getElementById('detail-cover-img');
+    img.src = book.cover;
+    img.style.display = 'block';
+    document.getElementById('detail-cover-placeholder').style.display = 'none';
+    renderBooksGrid();
+    showToast('🖼 Couverture mise à jour !');
+  };
+  reader.readAsDataURL(file);
+}
+
+// ============================================================
+// EXTRACTION COULEURS DE LA COUVERTURE
+// ============================================================
+
+function extractColors() {
+  const book = getBook(currentBookId);
+  if (!book || !book.cover) {
+    showToast('📖 Importe une couverture d\'abord !');
+    return;
+  }
+
+  const canvas = document.getElementById('color-extractor-canvas');
+  const ctx = canvas.getContext('2d');
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+  img.onload = () => {
+    canvas.width = img.width;
+    canvas.height = img.height;
+    ctx.drawImage(img, 0, 0);
+    
+    const colors = sampleColors(ctx, canvas.width, canvas.height, 8);
+    book.palette = colors;
+    saveAll();
+    renderPalette(colors);
+    showToast('🎨 Couleurs extraites !');
+  };
+  img.src = book.cover;
+}
+
+function sampleColors(ctx, w, h, count) {
+  const colors = new Set();
+  const step = Math.floor(w / count);
+  const rows = [Math.floor(h*0.2), Math.floor(h*0.5), Math.floor(h*0.8)];
+  
+  for (let row of rows) {
+    for (let i = 0; i < count; i++) {
+      const x = i * step + Math.floor(step/2);
+      const [r,g,b] = ctx.getImageData(Math.min(x,w-1), Math.min(row,h-1), 1, 1).data;
+      // Filtrer les couleurs trop proches du blanc/noir
+      const brightness = (r+g+b)/3;
+      if (brightness > 30 && brightness < 230) {
+        colors.add(rgbToHex(r,g,b));
+      }
+    }
+  }
+  // Compléter si besoin
+  const arr = [...colors].slice(0, 8);
+  return arr;
+}
+
+function rgbToHex(r,g,b) {
+  return '#' + [r,g,b].map(v => v.toString(16).padStart(2,'0')).join('');
+}
+
+function renderPalette(colors) {
+  const wrap = document.getElementById('palette-swatches');
+  wrap.innerHTML = `<button class="extract-btn" onclick="extractColors()">✦ Extraire</button>`;
+  colors.forEach(hex => {
+    const sw = document.createElement('div');
+    sw.className = 'swatch';
+    sw.style.background = hex;
+    sw.title = hex;
+    sw.onclick = () => applySwatchColor(hex);
+    wrap.appendChild(sw);
+  });
+}
+
+function applySwatchColor(hex) {
+  const book = getBook(currentBookId);
+  if (!book) return;
+  // Appliquer cette couleur aux post-its et accents du livre
+  book.colors = book.colors || {};
+  book.colors.accent = hex;
+  book.colors.postit1 = hex + '40'; // transparence
+  book.colors.postit2 = lightenHex(hex, 40) + '50';
+  saveAll();
+  applyBookPageColors(book);
+  showToast('🎨 Couleur appliquée !');
+}
+
+function lightenHex(hex, amount) {
+  let r = parseInt(hex.slice(1,3),16);
+  let g = parseInt(hex.slice(3,5),16);
+  let b = parseInt(hex.slice(5,7),16);
+  r = Math.min(255, r + amount);
+  g = Math.min(255, g + amount);
+  b = Math.min(255, b + amount);
+  return rgbToHex(r,g,b);
+}
+
+function applyBookPageColors(book) {
+  if (!book.colors) return;
+  const page = document.getElementById('page-book');
+  if (book.colors.bg) page.style.background = book.colors.bg;
+  if (book.colors.postit1) {
+    const el = document.getElementById('postit-appreciation');
+    if (el) el.style.background = book.colors.postit1;
+  }
+  if (book.colors.postit2) {
+    const el = document.getElementById('postit-resume');
+    if (el) el.style.background = book.colors.postit2;
+  }
+}
+
+// ============================================================
+// ÉTOILES (note sur 10)
+// ============================================================
+
+function initStarWidget() {
+  const widget = document.getElementById('stars-widget');
+  widget.innerHTML = '';
+  for (let i = 1; i <= 10; i++) {
+    const star = document.createElement('span');
+    star.className = 'star';
+    star.innerHTML = '★';
+    star.dataset.value = i;
+    star.onclick = () => {
+      const book = getBook(currentBookId);
+      if (!book) return;
+      book.rating = i;
+      saveAll();
+      setStars(i);
+      renderBooksGrid();
+    };
+    star.onmouseover = () => setStarsHover(i);
+    star.onmouseout = () => {
+      const book = getBook(currentBookId);
+      setStars(book ? book.rating : 0);
+    };
+    widget.appendChild(star);
+  }
+}
+
+function setStars(value) {
+  document.querySelectorAll('.star').forEach((s, i) => {
+    s.classList.toggle('active', i < value);
+  });
+  document.getElementById('rating-text').textContent = value ? `${value}/10` : '—/10';
+}
+
+function setStarsHover(value) {
+  document.querySelectorAll('.star').forEach((s, i) => {
+    s.classList.toggle('active', i < value);
+  });
+}
+
+// ============================================================
+// CITATIONS
+// ============================================================
+
+function renderCitations() {
+  const book = getBook(currentBookId);
+  if (!book) return;
+  const list = document.getElementById('citations-list');
+  list.innerHTML = '';
+  
+  (book.citations || []).forEach((cit, idx) => {
+    const item = createCitationEl(cit, idx);
+    list.appendChild(item);
+  });
+}
+
+function createCitationEl(cit, idx) {
+  const FLUOS = ['#ffd166','#06d6a0','#118ab2','#ef476f','#ffd6ff','#c8e6c9'];
+  const div = document.createElement('div');
+  div.className = 'citation-item';
+  
+  const highlight = document.createElement('div');
+  highlight.className = 'citation-highlight';
+  if (cit.fluo) highlight.style.background = cit.fluo;
+  
+  const ta = document.createElement('textarea');
+  ta.className = 'citation-text';
+  ta.value = cit.text || '';
+  ta.placeholder = '"Une phrase qui t\'a marqué·e..."';
+  ta.rows = 3;
+  ta.oninput = () => {
+    const book = getBook(currentBookId);
+    if (!book) return;
+    book.citations[idx].text = ta.value;
+    saveAll();
+  };
+  
+  const controls = document.createElement('div');
+  controls.className = 'citation-controls';
+  
+  // Boutons fluorescents
+  FLUOS.forEach(color => {
+    const btn = document.createElement('div');
+    btn.className = 'fluo-btn';
+    btn.style.background = color;
+    btn.onclick = () => {
+      const book = getBook(currentBookId);
+      if (!book) return;
+      book.citations[idx].fluo = color;
+      saveAll();
+      highlight.style.background = color;
+    };
+    controls.appendChild(btn);
+  });
+  
+  // Bouton supprimer
+  const del = document.createElement('button');
+  del.className = 'btn';
+  del.style.cssText = 'padding:3px 8px; font-size:0.65rem; margin-left:auto; border-color:rgba(231,76,60,0.4); color:rgba(231,76,60,0.7)';
+  del.textContent = '✕';
+  del.onclick = () => {
+    const book = getBook(currentBookId);
+    if (!book) return;
+    book.citations.splice(idx, 1);
+    saveAll();
+    renderCitations();
+  };
+  controls.appendChild(del);
+  
+  div.appendChild(highlight);
+  div.appendChild(ta);
+  div.appendChild(controls);
+  return div;
+}
+
+function addCitation() {
+  const book = getBook(currentBookId);
+  if (!book) return;
+  book.citations = book.citations || [];
+  book.citations.push({ text: '', fluo: '' });
+  saveAll();
+  renderCitations();
+  // Focus sur la dernière citation
+  const tas = document.querySelectorAll('.citation-text');
+  if (tas.length) tas[tas.length-1].focus();
+}
+
+// ============================================================
+// PROTAGONISTES
+// ============================================================
+
+let pendingProtagonistIdx = null;
+
+function renderProtagonists() {
+  const book = getBook(currentBookId);
+  if (!book) return;
+  const grid = document.getElementById('protagonists-grid');
+  grid.innerHTML = '';
+  
+  (book.protagonists || []).forEach((p, idx) => {
+    const card = document.createElement('div');
+    card.className = 'protagonist-card';
+    
+    const photo = document.createElement(p.photo ? 'img' : 'div');
+    if (p.photo) {
+      photo.src = p.photo;
+      photo.className = 'protagonist-photo';
+      photo.onclick = () => { pendingProtagonistIdx = idx; document.getElementById('protagonist-upload-input').click(); };
+    } else {
+      photo.className = 'protagonist-photo-placeholder';
+      photo.innerHTML = '👤';
+      photo.onclick = () => { pendingProtagonistIdx = idx; document.getElementById('protagonist-upload-input').click(); };
+    }
+    
+    const nameInput = document.createElement('input');
+    nameInput.className = 'protagonist-name';
+    nameInput.value = p.name || '';
+    nameInput.placeholder = 'Nom...';
+    nameInput.oninput = () => {
+      const b = getBook(currentBookId);
+      if (!b) return;
+      b.protagonists[idx].name = nameInput.value;
+      saveAll();
+    };
+    
+    card.appendChild(photo);
+    card.appendChild(nameInput);
+    grid.appendChild(card);
+  });
+  
+  // Bouton ajouter protagoniste
+  const addBtn = document.createElement('button');
+  addBtn.className = 'add-protagonist';
+  addBtn.innerHTML = '+';
+  addBtn.onclick = () => {
+    const book = getBook(currentBookId);
+    if (!book) return;
+    book.protagonists = book.protagonists || [];
+    book.protagonists.push({ name: '', photo: '' });
+    saveAll();
+    pendingProtagonistIdx = book.protagonists.length - 1;
+    renderProtagonists();
+  };
+  grid.appendChild(addBtn);
+}
+
+function onProtagonistUpload(event) {
+  const file = event.target.files[0];
+  if (!file || pendingProtagonistIdx === null) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const book = getBook(currentBookId);
+    if (!book) return;
+    book.protagonists[pendingProtagonistIdx].photo = e.target.result;
+    saveAll();
+    renderProtagonists();
+    showToast('📷 Photo ajoutée !');
+  };
+  reader.readAsDataURL(file);
+}
+
+// ============================================================
+// STICKERS / DOODLES (draggables)
+// ============================================================
+
+function triggerStickerUpload() {
+  document.getElementById('sticker-upload-input').click();
+}
+
+function onStickerUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const sticker = {
+      id: 'sticker_' + Date.now(),
+      src: e.target.result,
+      x: Math.random() * (window.innerWidth - 150) + 50,
+      y: Math.random() * (window.innerHeight - 150) + 100,
+      size: 80
+    };
+    stickers.push(sticker);
+    saveAll();
+    renderStickers();
+    showToast('🎨 Sticker ajouté !');
+  };
+  reader.readAsDataURL(file);
+  // Reset input
+  event.target.value = '';
+}
+
+function renderStickers() {
+  const layer = document.getElementById('stickers-layer');
+  layer.innerHTML = '';
+  stickers.forEach(sticker => {
+    const el = createStickerEl(sticker);
+    layer.appendChild(el);
+  });
+}
+
+function createStickerEl(sticker) {
+  const div = document.createElement('div');
+  div.className = 'sticker';
+  div.dataset.id = sticker.id;
+  div.style.cssText = `left:${sticker.x}px; top:${sticker.y}px; width:${sticker.size}px; height:${sticker.size}px;`;
+  
+  const img = document.createElement('img');
+  img.src = sticker.src;
+  
+  const del = document.createElement('div');
+  del.className = 'sticker-delete';
+  del.innerHTML = '✕';
+  del.onclick = e => {
+    e.stopPropagation();
+    stickers = stickers.filter(s => s.id !== sticker.id);
+    saveAll();
+    div.remove();
+  };
+  
+  div.appendChild(img);
+  div.appendChild(del);
+  
+  // Drag & Drop
+  makeDraggable(div, sticker);
+  
+  return div;
+}
+
+function makeDraggable(el, stickerData) {
+  let startX, startY, startLeft, startTop, dragging = false;
+  
+  el.addEventListener('mousedown', e => {
+    if (e.target.classList.contains('sticker-delete')) return;
+    dragging = true;
+    startX = e.clientX;
+    startY = e.clientY;
+    startLeft = stickerData.x;
+    startTop = stickerData.y;
+    el.style.zIndex = 99;
+    e.preventDefault();
+  });
+  
+  document.addEventListener('mousemove', e => {
+    if (!dragging) return;
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+    stickerData.x = startLeft + dx;
+    stickerData.y = startTop + dy;
+    el.style.left = stickerData.x + 'px';
+    el.style.top = stickerData.y + 'px';
+  });
+  
+  document.addEventListener('mouseup', () => {
+    if (dragging) { dragging = false; el.style.zIndex = ''; saveAll(); }
+  });
+  
+  // Touch support
+  el.addEventListener('touchstart', e => {
+    if (e.target.classList.contains('sticker-delete')) return;
+    const t = e.touches[0];
+    dragging = true;
+    startX = t.clientX; startY = t.clientY;
+    startLeft = stickerData.x; startTop = stickerData.y;
+  }, {passive: true});
+  
+  document.addEventListener('touchmove', e => {
+    if (!dragging) return;
+    const t = e.touches[0];
+    stickerData.x = startLeft + (t.clientX - startX);
+    stickerData.y = startTop + (t.clientY - startY);
+    el.style.left = stickerData.x + 'px';
+    el.style.top = stickerData.y + 'px';
+  }, {passive: true});
+  
+  document.addEventListener('touchend', () => {
+    if (dragging) { dragging = false; saveAll(); }
+  });
+}
+
+// ============================================================
+// WIDGET MUSIQUE
+// ============================================================
+
+function toggleMusicWidget() {
+  musicCollapsed = !musicCollapsed;
+  document.getElementById('music-widget').classList.toggle('collapsed', musicCollapsed);
+}
+
+function updateMusicWidget() {
+  const url = document.getElementById('music-url').value.trim();
+  const wrap = document.getElementById('music-iframe-wrap');
+  
+  // Sauvegarde l'URL
+  localStorage.setItem('bookshelf_music_url', url);
+  
+  if (!url) { wrap.innerHTML = ''; return; }
+  
+  let embedUrl = '';
+  
+  // YouTube
+  const ytMatch = url.match(/(?:youtu\.be\/|youtube\.com\/watch\?v=|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/);
+  if (ytMatch) {
+    embedUrl = `https://www.youtube.com/embed/${ytMatch[1]}?autoplay=0&rel=0`;
+    wrap.innerHTML = `<iframe src="${embedUrl}" width="100%" height="120" allowfullscreen allow="autoplay"></iframe>`;
+    return;
+  }
+  
+  // Spotify (playlist ou track)
+  const spMatch = url.match(/spotify\.com\/(track|playlist|album)\/([a-zA-Z0-9]+)/);
+  if (spMatch) {
+    embedUrl = `https://open.spotify.com/embed/${spMatch[1]}/${spMatch[2]}`;
+    wrap.innerHTML = `<iframe src="${embedUrl}" width="100%" height="80" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>`;
+    return;
+  }
+  
+  wrap.innerHTML = `<p style="font-family:var(--font-ui);font-size:0.7rem;opacity:0.4;text-align:center;padding:8px">Lien non reconnu (YouTube / Spotify)</p>`;
+}
+
+function loadMusicWidget() {
+  const saved = localStorage.getItem('bookshelf_music_url');
+  if (saved) {
+    document.getElementById('music-url').value = saved;
+    updateMusicWidget();
+  }
+}
+
+// ============================================================
+// THÈME & COULEURS
+// ============================================================
+
+function toggleSettings() {
+  document.getElementById('settings-panel').classList.toggle('open');
+}
+
+function applyColor(cssVar, value) {
+  document.documentElement.style.setProperty(cssVar, value);
+  saveTheme();
+  updatePageBackground();
+}
+
+function applyBookColor(elId, value) {
+  const el = document.getElementById(elId);
+  if (el) el.style.background = hexToRgba(value, 0.3);
+  saveTheme();
+}
+
+function hexToRgba(hex, alpha) {
+  const r = parseInt(hex.slice(1,3),16);
+  const g = parseInt(hex.slice(3,5),16);
+  const b = parseInt(hex.slice(5,7),16);
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+
+function setFont(btn) {
+  document.querySelectorAll('.font-option').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const font = btn.dataset.font;
+  document.documentElement.style.setProperty('--font-main', font);
+  saveTheme();
+}
+
+function getThemeState() {
+  return {
+    bgHome: getComputedStyle(document.documentElement).getPropertyValue('--bg-home').trim(),
+    bgHome2: getComputedStyle(document.documentElement).getPropertyValue('--bg-home-2').trim(),
+    accent: getComputedStyle(document.documentElement).getPropertyValue('--accent-home').trim(),
+    text: getComputedStyle(document.documentElement).getPropertyValue('--text-home').trim(),
+    fontMain: getComputedStyle(document.documentElement).getPropertyValue('--font-main').trim(),
+  };
+}
+
+function saveTheme() {
+  localStorage.setItem('bookshelf_theme', JSON.stringify(getThemeState()));
+}
+
+function loadTheme() {
+  try {
+    const t = JSON.parse(localStorage.getItem('bookshelf_theme') || '{}');
+    if (t.bgHome) { document.documentElement.style.setProperty('--bg-home', t.bgHome); document.getElementById('c-bg-home').value = t.bgHome; }
+    if (t.bgHome2) { document.documentElement.style.setProperty('--bg-home-2', t.bgHome2); document.getElementById('c-bg-home-2').value = t.bgHome2; }
+    if (t.accent) { document.documentElement.style.setProperty('--accent-home', t.accent); document.getElementById('c-accent').value = t.accent; }
+    if (t.text) { document.documentElement.style.setProperty('--text-home', t.text); document.getElementById('c-text').value = t.text; }
+    if (t.fontMain) {
+      document.documentElement.style.setProperty('--font-main', t.fontMain);
+      document.querySelectorAll('.font-option').forEach(b => {
+        b.classList.toggle('active', b.dataset.font === t.fontMain);
+      });
+    }
+  } catch(e) {}
+}
+
+function updatePageBackground() {
+  const bg = getComputedStyle(document.documentElement).getPropertyValue('--bg-home').trim();
+  const bg2 = getComputedStyle(document.documentElement).getPropertyValue('--bg-home-2').trim();
+  document.body.style.background = `linear-gradient(135deg, ${bg} 0%, ${bg2} 100%)`;
+  const homePage = document.getElementById('page-home');
+  homePage.style.background = 'transparent';
+}
+
+// ============================================================
+// EXPORT / IMPORT
+// ============================================================
+
+function exportData() {
+  const data = { books, stickers, theme: getThemeState(), version: '1.0' };
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `bookshelf-export-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  showToast('📥 Données exportées !');
+}
+
+function importData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (data.books) books = data.books;
+      if (data.stickers) stickers = data.stickers;
+      saveAll();
+      renderBooksGrid();
+      renderStickers();
+      showToast('📤 Données importées !');
+    } catch(err) {
+      showToast('❌ Fichier invalide');
+    }
+  };
+  reader.readAsText(file);
+}
+
+function resetConfirm() {
+  if (confirm('Supprimer toutes les données ? Cette action est irréversible.')) {
+    localStorage.clear();
+    books = [];
+    stickers = [];
+    location.reload();
+  }
+}
+
+// ============================================================
+// TOAST
+// ============================================================
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ============================================================
+// FERMER SETTINGS EN CLIQUANT DEHORS
+// ============================================================
+document.addEventListener('click', e => {
+  const panel = document.getElementById('settings-panel');
+  if (panel.classList.contains('open') && !panel.contains(e.target) && !e.target.closest('[onclick*="toggleSettings"]')) {
+    panel.classList.remove('open');
+  }
+  const modal = document.getElementById('modal-add-book');
+  if (modal.classList.contains('active') && e.target === modal) {
+    closeAddBook();
+  }
+});
+
+// Touches clavier
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    closeAddBook();
+    document.getElementById('settings-panel').classList.remove('open');
+  }
+});
+</script>
+</body>
+</html>
